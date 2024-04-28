@@ -1,0 +1,13 @@
+# Analyzing ongoing processes to detect suspicious scripts
+Write-Host "Analyzing ongoing processes for suspicious scripts..."
+$reverseShellSigns = "nc.exe", "netcat", "bash", "sh", "python", "perl"
+$processes = Get-Process | Where-Object { $_.Path -ne $null }
+foreach ($process in $processes) {
+    foreach ($sign in $reverseShellSigns) {
+        if ($process.Name -like "*$sign*") {
+            Write-Host "Possible reverse shell detected: $($process.Name) with PID $($process.Id)"
+            # Additional: Display network connections of the suspicious process
+            netstat -ano | Where-Object { $_ -like "*$($process.Id)*" }
+        }
+    }
+}
